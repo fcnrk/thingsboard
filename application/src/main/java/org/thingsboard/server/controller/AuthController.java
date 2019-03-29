@@ -38,15 +38,19 @@ import org.thingsboard.server.common.data.exception.ThingsboardErrorCode;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
 import org.thingsboard.server.common.data.id.TenantId;
 import org.thingsboard.server.common.data.security.UserCredentials;
+import org.thingsboard.server.dao.util.mapping.JacksonUtil;
 import org.thingsboard.server.service.security.auth.jwt.RefreshTokenRepository;
 import org.thingsboard.server.service.security.model.SecurityUser;
 import org.thingsboard.server.service.security.model.UserPrincipal;
+import org.thingsboard.server.service.security.model.token.AccessJwtToken;
 import org.thingsboard.server.service.security.model.token.JwtToken;
 import org.thingsboard.server.service.security.model.token.JwtTokenFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.*;
+
 
 @RestController
 @RequestMapping("/api")
@@ -71,6 +75,51 @@ public class AuthController extends BaseController {
         try {
             SecurityUser securityUser = getCurrentUser();
             return userService.findUserById(securityUser.getTenantId(), securityUser.getId());
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @RequestMapping(value = "/noauth/loginFromIdm", params = { "idmToken" }, method = RequestMethod.GET)
+    public ResponseEntity<String> loginFromIdm(@RequestParam(value = "idmToken") String idmToken) throws ThingsboardException {
+        try {
+            //IDM Parse token
+            URL idmParseTokenURL = new URL("http://test-services-b.logo-paas.com:5101/api/legacy/tokenparser/parsetoken/" + idmToken);
+            HttpURLConnection idmParseTokenConnection = (HttpURLConnection)idmParseTokenURL.openConnection();
+            idmParseTokenConnection.setRequestMethod("GET");
+            idmParseTokenConnection.connect();
+            int idmParseTokenStatus = idmParseTokenConnection.getResponseCode();
+            if (idmParseTokenStatus == 200)
+            {
+                BufferedReader in_ParseToken = new BufferedReader(new InputStreamReader(idmParseTokenConnection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = in_ParseToken.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                in_ParseToken.close();
+                JsonNode parseTokenResponseJson = JacksonUtil.toJsonNode(sb.toString());
+                if (parseTokenResponseJson != null)
+                {
+                    //Map to User
+                    User mappedUser = userService.findUserByEmail(TenantId.SYS_TENANT_ID, parseTokenResponseJson.get("EMail").textValue());
+                    UserPrincipal mappedUserPrincipal = new UserPrincipal(UserPrincipal.Type.USER_NAME, mappedUser.getEmail());
+                    SecurityUser mappedSecurityUser = new SecurityUser(mappedUser, true, mappedUserPrincipal);
+
+                    //Create JWT
+                    AccessJwtToken token = tokenFactory.createAccessJwtToken(mappedSecurityUser);
+                    return new ResponseEntity<String>(HttpStatus.OK, token.getToken());
+                }
+                else
+                {
+                    //TODO - handle invalid response
+                }
+            }
+            else
+            {
+                //TODO - handle the failed tokenParse operation
+            }
+            return "";
         } catch (Exception e) {
             throw handleException(e);
         }

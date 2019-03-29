@@ -40,7 +40,25 @@ export default function AppRun($rootScope, $window, $injector, $location, $log, 
         }
     }
 
+    checkAccessToken();
+
     initWatchers();
+
+    function checkAccessToken() {
+        let access_token = undefined;
+        var access_token_pos = $location.absUrl().indexOf("access_token=");
+        if(access_token_pos > 0)
+        {
+            let start_pos = access_token_pos + 13;
+            let end_pos = $location.absUrl().indexOf("&", start_pos);
+            access_token = $location.absUrl().substring(start_pos, end_pos);
+
+            if(access_token != "" && access_token != null)
+            {
+                userService.loginFromIdm(access_token);
+            }
+        }
+    }
     
     function initWatchers() {
         $rootScope.unauthenticatedHandle = $rootScope.$on('unauthenticated', function (event, doLogout) {
@@ -60,6 +78,11 @@ export default function AppRun($rootScope, $window, $injector, $location, $log, 
         });
 
         $rootScope.stateChangeStartHandle = $rootScope.$on('$stateChangeStart', function (evt, to, params) {
+
+            if (to.external) {
+                  evt.preventDefault();
+                  $window.open(to.url, '_self');
+                }
 
             function waitForUserLoaded() {
                 if ($rootScope.userLoadedHandle) {
@@ -137,7 +160,7 @@ export default function AppRun($rootScope, $window, $injector, $location, $log, 
             }
         })
 
-        $rootScope.pageTitle = 'ThingsBoard';
+        $rootScope.pageTitle = 'Logo IoT Hub';
 
         $rootScope.stateChangeSuccessHandle = $rootScope.$on('$stateChangeSuccess', function (evt, to, params) {
             if (userService.isPublic() && to.name === 'dashboard') {
@@ -146,9 +169,9 @@ export default function AppRun($rootScope, $window, $injector, $location, $log, 
             }
             if (angular.isDefined(to.data.pageTitle)) {
                 $translate(to.data.pageTitle).then(function (translation) {
-                    $rootScope.pageTitle = 'ThingsBoard | ' + translation;
+                    $rootScope.pageTitle = 'Logo IoT Hub | ' + translation;
                 }, function (translationId) {
-                    $rootScope.pageTitle = 'ThingsBoard | ' + translationId;
+                    $rootScope.pageTitle = 'Logo IoT Hub | ' + translationId;
                 });
             }
         })

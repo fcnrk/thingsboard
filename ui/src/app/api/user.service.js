@@ -64,7 +64,8 @@ function UserService($http, $q, $rootScope, adminService, dashboardService, time
         logout: logout,
         reloadUser: reloadUser,
         isUserTokenAccessEnabled: isUserTokenAccessEnabled,
-        loginAsUser: loginAsUser
+        loginAsUser: loginAsUser,
+        loginFromIdm: loginFromIdm
     }
 
     reloadUser();
@@ -77,6 +78,15 @@ function UserService($http, $q, $rootScope, adminService, dashboardService, time
             notifyUserLoaded();
         }, function fail() {
             notifyUserLoaded();
+        });
+    }
+
+    function loginFromIdm(token)
+    {
+        var url = '/api/noauth/loginFromIdm?idmToken=' + token;
+        $http.get(url).then(function (response) {
+            var jwt_token = response.data;
+            setUserFromJwtToken(jwt_token, null, true);
         });
     }
 

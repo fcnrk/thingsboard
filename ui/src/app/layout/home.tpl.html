@@ -25,19 +25,19 @@
 			  md-is-locked-open="vm.isLockSidenav"
 			  layout="column">
       <header class="tb-nav-header">
-          <md-toolbar class="tb-nav-header-toolbar">
+          <md-toolbar class="tb-nav-header-toolbar" style="background-color: #6b1d24;">
           	 <div flex layout="row" class="md-toolbar-tools inset">
 				<md-icon md-svg-src="{{vm.logoSvg}}" aria-label="logo" class="tb-logo-title"></md-icon>
           	 </div>
           </md-toolbar>
       </header>
-	  <md-toolbar flex class="tb-side-menu-toolbar" role="navigation">
+	  <md-toolbar flex class="tb-side-menu-toolbar" role="navigation" style="background-color: #6b1d24;">
 		  <tb-side-menu></tb-side-menu>
 	  </md-toolbar>
   </md-sidenav>
 
   <div flex layout="column" tabIndex="-1" role="main">
-    <md-toolbar class="md-whiteframe-z1 tb-primary-toolbar">
+    <md-toolbar class="md-whiteframe-z1 tb-primary-toolbar" style="background-color: #6b1d24;">
     	<div layout="row" flex class="md-toolbar-tools">
 		      <md-button id="main" hide-gt-sm ng-show="!forceFullscreen"
 		      		class="md-icon-button" ng-click="vm.openSidenav()" aria-label="{{ 'home.menu' | translate }}" ng-class="{'tb-invisible': vm.displaySearchMode()}">
@@ -53,7 +53,7 @@
 			  <div flex layout="row" ng-show="!vm.displaySearchMode()" tb-no-animate class="md-toolbar-tools">
 				  <span ng-cloak ncy-breadcrumb></span>
 			  </div>
-			  <div layout="row" ng-show="vm.displaySearchMode()" md-theme="tb-dark" flex>
+			  <div layout="row" ng-show="vm.displaySearchMode()" md-theme="tb-light" flex>
 				  <div class="tb-entity-subtype-search" layout="row" layout-align="start center" ng-if="vm.displayEntitySubtypeSearch()">
 					  <tb-entity-subtype-select
 							  entity-type="searchConfig.searchEntityType"

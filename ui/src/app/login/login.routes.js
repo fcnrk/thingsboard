@@ -15,7 +15,7 @@
  */
 /* eslint-disable import/no-unresolved, import/default */
 
-import loginTemplate from './login.tpl.html';
+// import loginTemplate from './login.tpl.html';
 import resetPasswordTemplate from './reset-password.tpl.html';
 import resetPasswordRequestTemplate from './reset-password-request.tpl.html';
 import createPasswordTemplate from './create-password.tpl.html';
@@ -25,18 +25,20 @@ import createPasswordTemplate from './create-password.tpl.html';
 /*@ngInject*/
 export default function LoginRoutes($stateProvider) {
     $stateProvider.state('login', {
-        url: '/login',
-        module: 'public',
-        views: {
-            "@": {
-                controller: 'LoginController',
-                controllerAs: 'vm',
-                templateUrl: loginTemplate
-            }
-        },
-        data: {
-            pageTitle: 'login.login'
-        }
+        url: 'http://test-services-b.logo-paas.com:5101/api/legacy/sts/oauth/authorize?response_type=token&client_id=f6d1ba4d-0492-402c-a5fc-eb57243762a5&redirect_uri=http://localhost:3000',
+        external: true
+        // url: '/login',
+        // module: 'public',
+        // views: {
+        //     "@": {
+        //         controller: 'LoginController',
+        //         controllerAs: 'vm',
+        //         templateUrl: loginTemplate
+        //     }
+        // },
+        // data: {
+        //     pageTitle: 'login.login'
+        // }
     }).state('login.resetPasswordRequest', {
         url: '/resetPasswordRequest',
         module: 'public',

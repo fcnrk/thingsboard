@@ -15,12 +15,12 @@
  */
 /* eslint-disable import/no-unresolved, import/default */
 
-import logoSvg from '../../svg/logo_title_white.svg';
+import logoSvg from '../../svg/logo.svg';
 
 /* eslint-enable import/no-unresolved, import/default */
 
 /*@ngInject*/
-export default function LoginController(toast, loginService, userService/*, $rootScope, $log, $translate*/) {
+export default function LoginController($window, toast, loginService, userService/*, $rootScope, $log, $translate*/) {
     var vm = this;
 
     vm.logoSvg = logoSvg;
@@ -31,6 +31,8 @@ export default function LoginController(toast, loginService, userService/*, $roo
     };
 
     vm.login = login;
+
+    //$window.location.href = 'http://test-services-b.logo-paas.com:5101/api/legacy/sts/oauth/authorize?response_type=token&client_id=f6d1ba4d-0492-402c-a5fc-eb57243762a5&redirect_uri=http://localhost:3000';
 
     function doLogin() {
         loginService.login(vm.user).then(function success(response) {
