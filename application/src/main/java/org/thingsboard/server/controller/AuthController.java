@@ -41,6 +41,7 @@ import org.thingsboard.server.common.data.security.UserCredentials;
 import org.thingsboard.server.dao.util.mapping.JacksonUtil;
 import org.thingsboard.server.service.security.auth.jwt.RefreshTokenRepository;
 import org.thingsboard.server.service.security.model.SecurityUser;
+import org.thingsboard.server.service.security.model.UserJwtToken;
 import org.thingsboard.server.service.security.model.UserPrincipal;
 import org.thingsboard.server.service.security.model.token.AccessJwtToken;
 import org.thingsboard.server.service.security.model.token.JwtToken;
@@ -81,7 +82,8 @@ public class AuthController extends BaseController {
     }
 
     @RequestMapping(value = "/noauth/loginFromIdm", params = { "idmToken" }, method = RequestMethod.GET)
-    public ResponseEntity<String> loginFromIdm(@RequestParam(value = "idmToken") String idmToken) throws ThingsboardException {
+    @ResponseBody
+    public UserJwtToken loginFromIdm(@RequestParam(value = "idmToken") String idmToken) throws ThingsboardException {
         try {
             //IDM Parse token
             URL idmParseTokenURL = new URL("http://test-services-b.logo-paas.com:5101/api/legacy/tokenparser/parsetoken/" + idmToken);
@@ -108,7 +110,8 @@ public class AuthController extends BaseController {
 
                     //Create JWT
                     AccessJwtToken token = tokenFactory.createAccessJwtToken(mappedSecurityUser);
-                    return new ResponseEntity<String>(HttpStatus.OK, token.getToken());
+                    JwtToken refreshToken = tokenFactory.createRefreshToken(mappedSecurityUser);
+                    return new UserJwtToken(token, refreshToken);
                 }
                 else
                 {
@@ -119,7 +122,7 @@ public class AuthController extends BaseController {
             {
                 //TODO - handle the failed tokenParse operation
             }
-            return "";
+            return null;
         } catch (Exception e) {
             throw handleException(e);
         }

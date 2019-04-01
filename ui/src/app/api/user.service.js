@@ -22,7 +22,7 @@ export default angular.module('thingsboard.api.user', [thingsboardApiLogin,
     .name;
 
 /*@ngInject*/
-function UserService($http, $q, $rootScope, adminService, dashboardService, timeService, loginService, toast, store, jwtHelper, $translate, $state, $location) {
+function UserService($http, $q, $rootScope, adminService, dashboardService, timeService, loginService, toast, store, jwtHelper, $translate, $state, $location, $log) {
     var currentUser = null,
         currentUserDetails = null,
         lastPublicDashboardId = null,
@@ -83,12 +83,29 @@ function UserService($http, $q, $rootScope, adminService, dashboardService, time
 
     function loginFromIdm(token)
     {
+        // var deferred = $q.defer();
         var url = '/api/noauth/loginFromIdm?idmToken=' + token;
-        $http.get(url).then(function (response) {
-            var jwt_token = response.data;
-            setUserFromJwtToken(jwt_token, null, true);
-        });
+        $http.get(url).then(function successCallback(response) {
+            var jwt_token = response.data.accessToken;//'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmaWtyZXRjYW4uZXJrZW5AbG9nby5jb20udHIiLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInVzZXJJZCI6ImZlM2NlY2MwLTUxMmItMTFlOS1hYTdlLTJmNTRjZWMxYWZlZSIsImZpcnN0TmFtZSI6IkZpa3JldGNhbiIsImxhc3ROYW1lIjoiRXJrZW4iLCJlbmFibGVkIjp0cnVlLCJpc1B1YmxpYyI6ZmFsc2UsInRlbmFudElkIjoiYzBkZTA3MDAtNTA5Yi0xMWU5LThiYzMtZGZkNDA0MzJjNTg2IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCIsImlzcyI6InRoaW5nc2JvYXJkLmlvIiwiaWF0IjoxNTU0MTA3Mjk3LCJleHAiOjE1NTQxMDgxOTd9.3PgiwaB7UxlVwBLrt3RCVT2RSYFtUpnxbGRIIrobPuu-PHSICjDM_RBXYQt_F1sDlZ4FacTxbsCJvfkSvBE31w';
+            var refresh_token = response.data.refreshToken;
+            setUserFromJwtToken(jwt_token, refresh_token, true, true);
+            $state.go('home');
+        }, function errorCallback(response) 
+        {
+            $log.log(response);
+        }).catch(function(response) {
+            $log.log('Vayamk... Error occurred:', response.status, response.data);
+          });
+        // $http.get(url).then(function success(response) {
+        //     deferred.resolve(setUserFromJwtToken(response.data, null, true, true));
+        // }, function fail() {
+        //     deferred.reject();
+        // });
+        // return deferred.promise;
+        
     }
+
+    
 
     function updateAndValidateToken(token, prefix, notify) {
         var valid = false;
